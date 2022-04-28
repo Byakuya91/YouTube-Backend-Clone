@@ -4,7 +4,7 @@ const { Comment, validateComment } = require("../models/comment");
 const { Reply, validateReply } = require("../models/reply");
 
 //  COMMENT ENDPOINTS
-// ! GET ALL COMMENTS (10 min) (COMPLETED)
+// ! GET ALL COMMENTS (COMPLETED)
 // http://localhost:3007/api/comments
 router.get("/", async (req, res) => {
   try {
@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ! GET A COMMENT BY ID (10 min)  (COMPLETED)
+// ! GET A COMMENT BY ID  (COMPLETED)
 //http://localhost:3007/api/comments/:commentId
 router.get("/:commentId", async (req, res) => {
   try {
@@ -32,7 +32,7 @@ router.get("/:commentId", async (req, res) => {
   }
 });
 
-// ! POST NEW COMMENT TO COMMENTS (20-30 min) (COMPLETED )
+// ! POST NEW COMMENT TO COMMENTS  (COMPLETED )
 router.post("/", async (req, res) => {
   try {
     const { error } = validateComment;
@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-//   UPDATE A comment by Id
+//   UPDATE A comment by Id, including its Likes/Dislikes (COMPLETED)
 // https://localhost:3007/api/comments/:commentId
 router.put("/:commentId", async (req, res) => {
   try {
@@ -67,9 +67,7 @@ router.put("/:commentId", async (req, res) => {
   }
 });
 
-// ! UPDATE AN EXISTING LIKES / DISLIKES FOR COMMENT BY ID (20-30 min) (SAVING UNTIL LATER)
-
-// ! DELETE A COMMENT BY ID (10 min)
+// ! DELETE A COMMENT BY ID COMPLETED
 router.delete("/:commentId", async (req, res) => {
   try {
     let comment = await Comment.findByIdAndDelete(req.params.commentId);
@@ -84,19 +82,19 @@ router.delete("/:commentId", async (req, res) => {
 });
 
 // REPLIES ENDPOINTS
-// ! POST NEW REPLY TO COMMENT BY COMMENT ID (30-40 min)
+// ! POST NEW REPLY TO COMMENT BY COMMENT ID COMPLETED
 // http://localhost:3007/api/commentsId/replyId
-router.post("/:commentId/reply", async (req, res) => {
+router.post("/:commentId/replies", async (req, res) => {
   try {
     // checking if there is a valid reply
     const { error } = validateReply;
     if (error) return res.status(400).send(error);
 
     // grabing a reply from a user
-    let newReply = await new Reply(req.body);
+    const newReply = await new Reply(req.body);
 
     // grabbing the comment from the document.
-    let comment = await Comment.findById(req.params.commentId);
+    const comment = await Comment.findById(req.params.commentId);
     //  checking if there is a comment
     if (!comment)
       return res
@@ -105,6 +103,7 @@ router.post("/:commentId/reply", async (req, res) => {
 
     // add reply to the comment document
     comment.replies.push(newReply);
+    //  saving the comment and then sending a response
     await comment.save();
     return res.send(comment.replies);
   } catch (error) {
