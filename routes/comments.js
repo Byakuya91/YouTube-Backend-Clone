@@ -25,7 +25,7 @@ router.get("/:commentId", async (req, res) => {
     if (!comment)
       return res
         .status(400)
-        .send(`Product with ObjectId: ${req.params.commentId}does not exist!`);
+        .send(`Comment with ObjectId: ${req.params.commentId}does not exist!`);
     return res.status(200).send(comment);
   } catch (error) {
     return res.status(500).send(`Internal Server Error: ${error}`);
@@ -86,5 +86,30 @@ router.delete("/:commentId", async (req, res) => {
 // REPLIES ENDPOINTS
 // ! POST NEW REPLY TO COMMENT BY COMMENT ID (30-40 min)
 // http://localhost:3007/api/commentsId/replyId
+router.post("/:commentId/reply", async (req, res) => {
+  try {
+    // checking if there is a valid reply
+    const { error } = validateReply;
+    if (error) return res.status(400).send(error);
+
+    // grabing a reply from a user
+    let newReply = await new Reply(req.body);
+
+    // grabbing the comment from the document.
+    let comment = await Comment.findById(req.params.commentId);
+    //  checking if there is a comment
+    if (!comment)
+      return res
+        .status(400)
+        .send(`Comment with ObjectId: ${req.params.commentId}does not exist!`);
+
+    // add reply to the comment document
+    comment.replies.push(newReply);
+    await comment.save();
+    return res.send(comment.replies);
+  } catch (error) {
+    return res.status(500).send(`Internal Server Error: ${error}`);
+  }
+});
 
 module.exports = router;
