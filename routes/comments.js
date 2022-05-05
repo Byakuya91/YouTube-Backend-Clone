@@ -32,6 +32,23 @@ router.get("/:commentId", async (req, res) => {
   }
 });
 
+// GET comments by VIDEOId(IN PROGRESS)
+router.get("/byvideoid/:videoId", async (req, res) => {
+  try {
+    // grab all the comments in the document.
+    let comments = await Comment.find({ videoID: req.params.videoId });
+    if (!comments)
+      return res
+        .status(400)
+        .send(
+          `No comments with videoID: ${req.params.videoId} exist in this collection!`
+        );
+    return res.send(comments);
+  } catch (error) {
+    return res.status(500).send(`Internal Server Error: ${error}`);
+  }
+});
+
 // ! POST NEW COMMENT TO COMMENTS  (COMPLETED )
 router.post("/", async (req, res) => {
   try {
@@ -39,7 +56,8 @@ router.post("/", async (req, res) => {
     if (error) return res.status(400).send(error);
     let newComment = await new Comment(req.body);
     await newComment.save();
-    return res.status(201).send(newComment);
+    let comments = await Comment.find();
+    return res.status(201).send(comments);
   } catch (error) {
     return res.status(500).send(`Internal Server Error: ${error}`);
   }
